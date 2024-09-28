@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Aaditya_Mohit Page Info Side Panel",
+  "version": "1.0",
+  "description": "Displays the current page link and title in a side panel.",
+  "permissions": ["tabs", "sidePanel"],
+"action": {
+    "default_title": "Click to open panel"
+  },
+  "side_panel": {
+    "default_path": "index.html",
+    "openPanelOnActionClick": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["**/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

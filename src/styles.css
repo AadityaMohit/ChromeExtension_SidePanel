@@ -1,0 +1,12 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 10px;
+  }
+  #container {
+    display: flex;
+    flex-direction: column;
+  }
+  p {
+    margin: 5px 0;
+  }
+  
