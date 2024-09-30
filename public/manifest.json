@@ -3,8 +3,8 @@
   "name": "Aaditya_Mohit Page Info Side Panel",
   "version": "1.0",
   "description": "Displays the current page link and title in a side panel.",
-  "permissions": ["tabs", "sidePanel"],
-"action": {
+  "permissions": ["tabs", "sidePanel", "scripting", "activeTab"],
+  "action": {
     "default_title": "Click to open panel"
   },
   "side_panel": {
@@ -18,6 +18,12 @@
     {
       "resources": ["**/*"],
       "matches": ["<all_urls>"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
     }
   ]
 }

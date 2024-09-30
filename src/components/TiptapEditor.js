@@ -4,15 +4,18 @@ import StarterKit from '@tiptap/starter-kit';
 import CodeBlock from '@tiptap/extension-code-block';
 import Emoji from './EmojiExtension';
 import { db } from '../firebase';  
-import { doc, updateDoc, getDoc } from 'firebase/firestore';  
+import { doc, updateDoc, getDoc } from 'firebase/firestore';   
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSmile, faSave } from '@fortawesome/free-solid-svg-icons';
 import './TiptapEditor.css'; 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const TiptapEditor = () => {
   const [codeBlockContent, setCodeBlockContent] = useState('');    
   const [savedCodeBlocks, setSavedCodeBlocks] = useState([]);  
   const documentId = 'qnUuuKeaCms7OtLT6ZhD';  
-
-  // Throttle timeout reference
+  const textDocumentId = 'ZGmbaI92DWo1Nn7NBkgp';  
   const throttleTimeoutRef = useRef(null);
 
   const saveToFirebase = async (content) => {
@@ -66,12 +69,10 @@ const TiptapEditor = () => {
         const codeContent = codeBlocks.map(block => block.replace(/<\/?[^>]+(>|$)/g, ""));
         setCodeBlockContent(codeContent[0]);  
 
-        // Clear any existing throttle timeout
         if (throttleTimeoutRef.current) {
           clearTimeout(throttleTimeoutRef.current);
         }
 
-        // Set a new timeout to save the content after 5 seconds of inactivity
         throttleTimeoutRef.current = setTimeout(() => {
           saveToFirebase(codeContent[0]);   
         }, 3000);   
@@ -82,17 +83,104 @@ const TiptapEditor = () => {
   useEffect(() => {
     fetchCodeBlocks();  
   }, []);
+ 
+  const handleSaveSelectedText = async () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTabId = tabs[0]?.id;
+  
+      if (activeTabId) {
+        chrome.tabs.sendMessage(
+          activeTabId,
+          { action: "getSelectedText" },
+          async (response) => {
+            const selectedText = response?.text;
+  
+            if (selectedText) {
+              try {
+                const docRef = doc(db, "selectedTexts", textDocumentId);
+                const docSnap = await getDoc(docRef);
+  
+                let currentTexts = [];
+  
+                if (docSnap.exists()) {
+                  currentTexts = docSnap.data().texts || [];
+                }
+  
+                const updatedTexts = [...currentTexts, { text: selectedText, timestamp: new Date().toISOString() }];
+  
+                await updateDoc(docRef, {
+                  texts: updatedTexts,
+                });
+  
+                toast.success("Selected text saved to Firebase!");
+              } catch (e) {
+                console.error("Error saving selected text: ", e);
+                toast.error("Failed to save selected text.");
+              }
+            } else {
+              toast.warning("No text selected in the active tab.");
+            }
+          }
+        );
+      }
+    });
+  };
+  
+
+  const handleRandomButtonClick = async () => {
+    try {
+      const docRef = doc(db, "codeBlocks", documentId);  
+      const docSnap = await getDoc(docRef);
+
+      let currentCount = 0;
+
+      if (docSnap.exists()) {
+        currentCount = docSnap.data().count || 0;  
+      }
+
+      const updatedCount = currentCount + 1;
+
+      await updateDoc(docRef, {
+        randomUpdate: "Triggered from random button",
+        count: updatedCount
+      });
+
+      toast.success(`Firebase function call succeeded! Count updated to ${updatedCount}`);
+    } catch (error) {
+      console.error("Error triggering Firebase function: ", error.message);
+      toast.error("Firebase function call failed!");
+    }
+  };
 
   return (
     <div>
+      <div className="header-image-container"></div>
+
       <h2>Tiptap Editor with CodeBlock and Emoji Extension</h2>
 
       <div className="editor-container">
         <EditorContent editor={editor} />
       </div>
+
       <div style={{ marginTop: '10px' }}>   
-        <button onClick={() => editor && editor.chain().focus().insertEmoji('😊').run()}>Insert 😊</button>
-        <button onClick={() => editor && editor.chain().focus().insertEmoji('🎉').run()}>Insert 🎉</button>
+        <button className="icon-button" onClick={() => editor && editor.chain().focus().insertEmoji('😊').run()}>
+          <FontAwesomeIcon icon={faSmile} /> Insert 😊
+        </button>
+        <button className="icon-button" onClick={() => editor && editor.chain().focus().insertEmoji('🎉').run()}>
+          <FontAwesomeIcon icon={faSmile} /> Insert 🎉
+        </button>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={handleRandomButtonClick} className="random-button">
+          Random Firebase API Call
+        </button>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={handleSaveSelectedText} className="save-selected-text-button">
+          Save Selected Text to Firebase
+        </button>
       </div>
 
       <div style={{ marginTop: '20px' }}>
@@ -103,6 +191,8 @@ const TiptapEditor = () => {
           ))}
         </ul>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

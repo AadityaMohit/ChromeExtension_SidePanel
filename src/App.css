@@ -44,3 +44,21 @@
   padding: 20px;  
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);  
 }
+ 
+.rotating-google-logo {
+ 
+  
+  right: 20px;  
+  width: 100px;   
+  height: 100px;
+ 
+}
+ 
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

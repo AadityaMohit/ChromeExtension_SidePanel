@@ -45,7 +45,6 @@ const PageInfo = ({ username }) => {
     };
   }, []);
 
- 
   const handleLogout = async () => {
     try {
       await signOut(auth);  
@@ -55,7 +54,6 @@ const PageInfo = ({ username }) => {
     }
   };
 
- 
   const handleSaveData = async () => {
     try {
       await addDoc(collection(db, "userInputs"), {
@@ -72,7 +70,6 @@ const PageInfo = ({ username }) => {
     }
   };
 
- 
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "userInputs"));
@@ -83,20 +80,23 @@ const PageInfo = ({ username }) => {
     }
   };
 
- 
   useEffect(() => {
     fetchData();
   }, []);
 
   return (
-    <div id="container">
+    <div id="container" style={{ position: 'relative' }}>   
+ 
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg"   
+        alt="Google Logo"
+        className="rotating-google-logo"
+      />
+ 
       {username && <p>Welcome : {username}</p>} 
       <p><strong>Title:</strong> <span>{pageTitle}</span></p>
       <p><strong>URL:</strong> <span>{pageUrl}</span></p>
 
-
-
-      {/* Logout button */}
       <button 
         onClick={handleLogout} 
         style={{
@@ -116,9 +116,8 @@ const PageInfo = ({ username }) => {
         Logout
       </button>
 
-     
       <div>
-     
+ 
       </div>
     </div>
   );
