@@ -10,7 +10,8 @@ import { faSmile, faSave } from '@fortawesome/free-solid-svg-icons';
 import './TiptapEditor.css'; 
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';  
 const TiptapEditor = () => {
   const [codeBlockContent, setCodeBlockContent] = useState('');    
   const [savedCodeBlocks, setSavedCodeBlocks] = useState([]);  
@@ -83,7 +84,19 @@ const TiptapEditor = () => {
   useEffect(() => {
     fetchCodeBlocks();  
   }, []);
- 
+  const callExampleFunction = async () => {
+    const exampleFunction = httpsCallable(functions, 'test');
+  
+    try {
+      const result = await exampleFunction();
+      console.log(result.data.message);  
+      toast.success(result.data.message);  
+    } catch (error) {
+      console.error("Error calling function: ", error);
+      toast.error("Failed to call function!");
+    }
+  };
+  
   const handleSaveSelectedText = async () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTabId = tabs[0]?.id;
@@ -154,6 +167,12 @@ const TiptapEditor = () => {
 
   return (
     <div>
+      <div style={{ marginTop: '20px' }}>
+  <button onClick={callExampleFunction} className="random-button">
+    Call Firebase Function
+  </button>
+</div>
+
       <div className="header-image-container"></div>
 
       <h2>Tiptap Editor with CodeBlock and Emoji Extension</h2>

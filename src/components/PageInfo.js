@@ -86,12 +86,7 @@ const PageInfo = ({ username }) => {
 
   return (
     <div id="container" style={{ position: 'relative' }}>   
- 
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg"   
-        alt="Google Logo"
-        className="rotating-google-logo"
-      />
+  
  
       {username && <p>Welcome : {username}</p>} 
       <p><strong>Title:</strong> <span>{pageTitle}</span></p>
